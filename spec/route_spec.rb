@@ -66,4 +66,25 @@ describe RouterSimple::Route, '#match' do
             assert_equal router.match('GET', '/foo/yappo'), [8, {'name' => 'yappo'}]
         end
     end
+
+    describe 'use regexp as a path' do
+        describe 'using named capture' do
+            router = RouterSimple::Route.new('GET', %r{^/foo/(?<no>[0-9]+)$}, 8)
+            it 'matches /foo/111' do
+                assert_equal router.match('GET', '/foo/111'), [8, {'no' => '111'}]
+            end
+            it 'does not matches /foo/bar' do
+                assert_equal router.match('GET', '/foo/bar'), [nil, nil]
+            end
+        end
+        describe 'using paren capture' do
+            router = RouterSimple::Route.new('GET', %r{^/foo/([0-9]+)$}, 8)
+            it 'matches /foo/111' do
+                assert_equal router.match('GET', '/foo/111'), [8, {}]
+            end
+            it 'does not matches /foo/bar' do
+                assert_equal router.match('GET', '/foo/bar'), [nil, nil]
+            end
+        end
+    end
 end

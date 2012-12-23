@@ -33,8 +33,14 @@ module RouterSimple
 
         # register a path to router.
         #
+        # You can specify three pattern of path.
+        #
+        # 1. Use regexp directly
+        # 2. Use /:name/:id
+        # 3. Use /*path
+        #
         # @param [Araray or String] http_method HTTP method. You can specify nil, ['GET', 'HEAD"], 'GET', etc.
-        # @param [String] path
+        # @param [String or Regexp] path
         # @param [Any]    dest Destination of this path
         # @return None
         def register(http_method, path, dest)
@@ -80,7 +86,7 @@ module RouterSimple
         # Match to this route
         # 
         # @param [String] http_method REQUEST_METHOD
-        # @param [String] path        PATH_INFO
+        # @param [String or Regexp] path        PATH_INFO
         #
         # @return dest               Destination for this route
         # @return captures           captured parameters by router
