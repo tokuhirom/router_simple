@@ -24,6 +24,7 @@ router_simple.rb - minimalistic path dispatcher
 =end
 
 module RouterSimple
+    # Yet another HTTP Router
     class Router
         # Create new instance
         def initialize
@@ -62,16 +63,17 @@ module RouterSimple
         end
     end
 
+    # Route class
     class Route
         # Create new route object
         #
         # @param [Araray or String or NilClass] http_method HTTP method. You can specify nil, ['GET', 'HEAD"], 'GET', etc.
         # @param [String] path
         # @param [Any]    dest Destination of this path
-        def initialize(http_method, path, data)
+        def initialize(http_method, path, dest)
             @path = path
             @pattern = compile(path)
-            @data = data
+            @dest = dest
             @http_method = http_method.is_a?(String) ? [http_method] : http_method
         end
 
@@ -93,7 +95,7 @@ module RouterSimple
                 matched.names.zip(matched.captures).each {|x|
                     captures[x[0]] = x[1]
                 }
-                return @data, captures
+                return @dest, captures
             else
                 return nil, nil
             end
