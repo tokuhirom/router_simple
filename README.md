@@ -1,6 +1,6 @@
 # RouterSimple
 
-TODO: Write a gem description
+RouterSimple is yet another HTTP routing library.
 
 ## Installation
 
