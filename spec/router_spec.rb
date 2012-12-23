@@ -6,43 +6,51 @@ require 'router_simple'
 describe RouterSimple::Router, '#xxx' do
     it 'returns nil when there is no registered pattern' do
         router = RouterSimple::Router.new()
-        assert_equal router.match('/'), nil
+        assert_equal router.match('GET', '/'), [nil, nil, false]
     end
 
-    it 'matches / when registered /' do
-        router = RouterSimple::Router.new()
-        router.register('/', 4)
-        assert_equal router.match('/'), [4, {}]
+    describe 'GET /' do
+        it 'matches / when registered /' do
+            router = RouterSimple::Router.new()
+            router.register('GET', '/', 4)
+            assert_equal router.match('GET', '/'), [4, {}]
+        end
+
+        it 'denides POST request' do
+            router = RouterSimple::Router.new()
+            router.register('GET', '/', 4)
+            assert_equal router.match('POST', '/'), [nil, nil, true]
+        end
     end
 
     it 'matches /json when registered /json' do
         router = RouterSimple::Router.new()
-        router.register('/', 2)
-        router.register('/json', 4)
-        assert_equal router.match('/json'), [4, {}]
+        router.register('GET', '/', 2)
+        router.register('GET', '/json', 4)
+        assert_equal router.match('GET', '/json'), [4, {}]
     end
 
     it 'matches /dankogai when registered /:name' do
         router = RouterSimple::Router.new()
-        router.register('/:name', 4)
-        assert_equal router.match('/dankogai'), [4, {'name' => 'dankogai'}]
+        router.register('GET', '/:name', 4)
+        assert_equal router.match('GET', '/dankogai'), [4, {'name' => 'dankogai'}]
     end
 
     it 'matches /dankogai/4 when registered /:name/:entry_id' do
         router = RouterSimple::Router.new()
-        router.register('/:name/:entry_id', 4)
-        assert_equal router.match('/dankogai/4'), [4, {'name' => 'dankogai', 'entry_id' => '4'}]
+        router.register('GET', '/:name/:entry_id', 4)
+        assert_equal router.match('GET', '/dankogai/4'), [4, {'name' => 'dankogai', 'entry_id' => '4'}]
     end
 
     it 'does not match /dankogai/4 when registered /:name' do
         router = RouterSimple::Router.new()
-        router.register('/:name', 4)
-        assert_equal router.match('/dankogai/4'), nil
+        router.register('GET', '/:name', 4)
+        assert_equal router.match('GET', '/dankogai/4'), [nil, nil, false]
     end
 
     it 'supports /foo/*name' do
         router = RouterSimple::Router.new()
-        router.register('/foo/*name', 8)
-        assert_equal router.match('/foo/jfsdlkaf/jajkdlsfj'), [8, {'name' => 'jfsdlkaf/jajkdlsfj'}]
+        router.register('GET', '/foo/*name', 8)
+        assert_equal router.match('GET', '/foo/jfsdlkaf/jajkdlsfj'), [8, {'name' => 'jfsdlkaf/jajkdlsfj'}]
     end
 end

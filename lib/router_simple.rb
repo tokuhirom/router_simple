@@ -2,14 +2,15 @@ require "router_simple/version"
 
 =begin
 
-router.rb - minimalistic path dispatcher
+router_simple.rb - minimalistic path dispatcher
 
 =head1 SYNOPSIS
 
-    router = Router.new
-    router.register('/', 'Root')
-    router.register('/member/:name', 'Member#detail')
-    router.register('/download/*path', 'Download#detail')
+    router = RouterSimple::Router.new
+    router.register('GET',  '/', 'Root')
+    router.register('POST', '/member/create', 'Member#create')
+    router.register('GET',  '/member/:name', 'Member#detail')
+    router.register('GET',  '/download/*path', 'Download#detail')
 
     router.match('/')
     # => ('Root', {})
@@ -28,16 +29,21 @@ module RouterSimple
             @patterns = []
         end
 
-        def register(path, info)
-            @patterns.push(Route.new(path, info))
+        def register(http_method, path, info)
+            @patterns.push(Route.new(http_method, path, info))
         end
 
-        def match(path)
+        def match(http_method, path)
+            found_method_not_allowed = false
             @patterns.each do |pattern|
-                r = pattern.match(path)
-                return r if r
+                data, captured, method_not_allowed = pattern.match(http_method, path)
+                if data
+                    return data, captured
+                elsif method_not_allowed
+                    found_method_not_allowed = true
+                end
             end
-            return nil
+            return nil, nil, found_method_not_allowed
         end
         def __dump
             @patterns.each do |pattern|
@@ -47,26 +53,30 @@ module RouterSimple
     end
 
     class Route
-        def initialize(path, data)
+        def initialize(http_method, path, data)
             @path = path
             @pattern = compile(path)
             @data = data
+            @http_method = http_method.is_a?(String) ? [http_method] : http_method
         end
 
         def __dump
             puts "#{@path} #{@pattern}"
         end
 
-        def match(path)
+        def match(http_method, path)
             matched = @pattern.match(path)
             if matched
+                if @http_method && !@http_method.any? {|m| m==http_method}
+                    return nil, nil, true
+                end
                 captures = {}
                 matched.names.zip(matched.captures).each {|x|
                     captures[x[0]] = x[1]
                 }
                 return @data, captures
             else
-                return nil
+                return nil, nil
             end
         end
 
@@ -80,8 +90,8 @@ module RouterSimple
                     path.gsub(/[-\[\]{}()+?.,\\^$|#\s]/) {|x|
                         Regexp.escape(x)
                     }
-                    .gsub(/:([\w\d]+)/, "(?<\\1>[^\/]*)")
-                    .gsub(/\*([\w\d]+)/, "(?<\\1>.*?)")
+                    .gsub(/:([\w\d]+)/, "(?<\\1>[^\/]+)")
+                    .gsub(/\*([\w\d]+)/, "(?<\\1>.+?)")
                     ) + '\z'
                 )
                 pattern
