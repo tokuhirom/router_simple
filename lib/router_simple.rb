@@ -61,7 +61,7 @@ module RouterSimple
         end
 
         def __dump
-            puts "#{@path} #{@pattern}"
+            puts "#{@http_method} #{@path} #{@pattern}"
         end
 
         def match(http_method, path)
