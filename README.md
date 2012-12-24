@@ -18,7 +18,20 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+    router = RouterSimple::Router.new
+    router.register('GET',  '/', 'Root')
+    router.register('POST', '/member/create', 'Member#create')
+    router.register('GET',  '/member/:name', 'Member#detail')
+    router.register('GET',  '/download/*path', 'Download#detail')
+
+    router.match('/')
+    # => ('Root', {})
+
+    router.match('/member/dankogai')
+    # => ('Member#detail', {"name" => 'dankogai'})
+
+    router.match('/download/growthforecast')
+    # => ('Download#detail', {"path" => 'growthforecast'})
 
 ## Contributing
 
